@@ -130,3 +130,11 @@ The legacy R analysis/report path still selects operational inputs and is not pa
 - Complete the release review and choose a version tag.
 
 The full educational guide, historical data and inventory integration remain later work.
+
+## 2026-11-02 — Separate portfolio directory verified on Windows
+
+The public demo was rebuilt in a separate Windows 11 project directory using a freshly downloaded public ATC reference. Synthetic generation, SQLite construction and the four Power BI CSV exports completed successfully. Retail totals matched the documented demo baseline.
+
+Shiny was checked locally. The portfolio Power BI parameter now points to its own demo export directory, with Sales overview saved as the opening page.
+
+This verification used the existing R installation. Clean-machine and complete Linux demo verification remain pending.
