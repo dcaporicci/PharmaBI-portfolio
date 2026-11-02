@@ -61,6 +61,10 @@ L'app utilizza connessioni SQLite in sola lettura. Le date seguono `YYYY-MM-DD`;
 
 Shiny si avvia normalmente in modalità demo e mostra **Synthetic demonstration data**. Una modalità privata esplicita è mantenuta per l'utilizzo operativo locale autorizzato.
 
+![Riepilogo Shiny con KPI e ricavi mensili sintetici](docs/images/shiny-sales-overview-demo.png)
+
+*Transazioni fittizie. Gli asterischi indicano i mesi con copertura parziale del calendario.*
+
 ### Power BI
 
 Sono implementate **Sales overview**, **Products**, **Merchandise groups** e **Human ATC**.

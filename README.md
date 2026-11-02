@@ -61,6 +61,10 @@ The application uses read-only SQLite connections. Dates use `YYYY-MM-DD`; numer
 
 Shiny defaults to demo mode and displays **Synthetic demonstration data**. An explicit private mode is retained for authorized local operational use.
 
+![Shiny overview with synthetic retail KPIs and monthly net revenue](docs/images/shiny-sales-overview-demo.png)
+
+*Fictional transactions. Asterisks mark months with partial calendar coverage.*
+
 ### Power BI
 
 Four pages are implemented: **Sales overview**, **Products**, **Merchandise groups** and **Human ATC**.
