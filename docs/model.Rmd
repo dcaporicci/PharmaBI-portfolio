@@ -1,0 +1,123 @@
+---
+title: "PharmaBI — Analytical data model"
+author: "Danilo Caporicci"
+date: "2026-11-02"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+---
+
+# Scope
+
+PharmaBI uses one analytical fact schema with separate private and synthetic input paths.
+
+This public model description uses the synthetic demonstration as its example. It contains no code chunks that load operational data. All references to the operational ETL describe its structure rather than confidential results.
+
+The demo is generated directly at fact-table level. It does not recreate raw management-system exports.
+
+# Fact grain and measures
+
+**One row represents one product code within one transaction.**
+
+The logical key is `(sale_id, product_code)`. A product can occur in many transactions, while multiple packages within one transaction occupy one row.
+
+`fact_sales` contains 20 columns: date, three time slots, receipt ID, source counter, manufacturer code/description, product code/description, GM code/description, ATC code/description, revenue, costs, profit, margin, packages and sale type.
+
+Signed quantities and amounts retain returns. `sale_type` distinguishes retail and non-retail scope.
+
+| Measure | Definition |
+|---|---|
+| Net revenue | Recorded line revenue excluding VAT |
+| Recorded costs | Product costs attributed to the line |
+| Recorded profit | Net revenue minus recorded product costs |
+| Line margin | Recorded profit / revenue for nonzero revenue |
+| Overall margin | Sum of recorded profit / sum of net revenue |
+| Net packages | Sum of signed package quantities |
+
+Recorded profit precedes operating expenses. Receipts do not identify customers.
+
+# Input paths
+
+| Layer | Private workflow | Public demo |
+|---|---|---|
+| Input preparation | Import, clean and enrich management-system CSVs | Generate fictional catalogue and transactions |
+| Prepared fact | `data/facts/fact_sales.rds` | `data/demo/facts/fact_sales.rds` |
+| ATC reference | `data/reference/atc_reference.rds` | Snapshot under `data/demo/reference/` |
+| SQLite | `data/database/pharmabi.sqlite` | `data/demo/database/pharmabi.sqlite` |
+| Power BI CSVs | `data/powerbi/` | `data/demo/powerbi/` |
+
+`pharmabi_data_paths(mode)` requires exactly `demo` or `private`. Shared functions receive explicit paths. Missing demo inputs do not trigger a switch to operational data.
+
+# ETL lookup tables
+
+The private pipeline retains the latest available GM and ATC classification per product in `dim_products_gm` and `dim_products_atc` before enriching the fact table.
+
+Rows with missing product descriptions are excluded by the cleaning rule. The release validator also requires nonblank mandatory text.
+
+Latest classification is applied to the analytical data across the period. This is a current-classification view, not a slowly changing dimension with historical as-of relationships.
+
+The original source fields `period`, `tenant_id`, `operator_code` and `operator_desc` are not retained in the fact schema. Manufacturer fields remain descriptive attributes; no manufacturer dimension is currently built.
+
+# SQLite model
+
+| Object | Grain / contents | Link |
+|---|---|---|
+| `fact_sales` | One transaction-product row, both sale types | Logical key `sale_id + product_code` |
+| `dim_products` | One product code and canonical description | `product_code` |
+| `dim_date` | One date with year, month and ISO weekday attributes | ISO `date` |
+| `dim_atc_level2` | One level 2 code and public description | First three characters of `atc_code`, derived in queries |
+| `vw_retail_sales` | Retail subset of `fact_sales` | View, not another stored copy of sales |
+
+The builder converts fact dates to ISO text for SQLite. The calendar covers complete years spanning the fact dates; the demo has 365 calendar rows.
+
+Product descriptions are selected from the latest observed date in the complete fact. If descriptions tie on that date, the current implementation follows the existing row order; no separate master-data precedence rule is implemented.
+
+Level 2 labels can exist without sales. ATC level 2 is not an extra stored column of the 20-column SQLite fact table.
+
+The builder uses `dbWriteTable()` and validates logical uniqueness in R. These tables are not documented as having database-enforced foreign-key constraints or a physical composite primary key.
+
+# Power BI semantic model
+
+`fact_sales_retail` is imported from the SQLite retail-view export. Its 20 source columns are supplemented in Power Query by `atc_level2` and `is_human_atc`.
+
+Active, single-direction relationships filter from dimensions to retail sales:
+
+| Dimension | Key | Cardinality to fact |
+|---|---|---|
+| `dim_date` | `date` | One to many |
+| `dim_products` | `product_code` | One to many |
+| `dim_gm` | `gm_code` | One to many |
+| `dim_atc_level2` | `atc_level2` | One to many |
+
+`dim_gm` is built in Power Query from distinct retail GM code/description pairs. It requires no GM CSV or physical SQLite GM dimension.
+
+The disconnected `Ranking Metric` table selects recorded profit, net revenue or packages. It has no relationship to the fact.
+
+Automatic date/time tables are disabled and `dim_date` is marked as the date table. The calendar slicer includes dates/months without observed transactions.
+
+# Human ATC scope
+
+The current rule excludes missing/blank ATC codes and the explicit veterinary codes `P52AC13`, `P53AX65` and `P54AB51` from the human view.
+
+The Human ATC page applies this as a page filter. Other pages retain all retail products. The flag is source/scenario-specific and requires review when classifications change; it is not a general rule excluding all P-prefixed codes.
+
+Public ATC metadata are assigned to fictional demo products to demonstrate hierarchy and filtering. They do not describe actual product registrations or clinical demand.
+
+# Receipt and pair analysis
+
+Receipt-level data aggregate the retail fact by receipt identifier and date. The validator requires each receipt ID to have one date and one sale type.
+
+A distinct receipt-product table is self-joined on receipt ID with `product_code_a < product_code_b`. This yields one unordered pair per containing receipt. Pair counts, support, confidence and lift are derived without quantity weighting.
+
+The current queries retain return rows in presence-based baskets. There is no customer dimension, loyalty-card identifier or reliable visit identifier.
+
+# Synthetic example and verification boundaries
+
+The tested fixture contains 7.835 rows: 7.817 retail rows in 4.800 receipts, plus 18 rows in three non-retail transactions. All 240 fictional products appear in retail sales.
+
+The sales window is 2026-01-05 to 2026-09-20. The generator deliberately includes eight returns, twelve below-cost rows and three products with zero recorded costs.
+
+The shared validator passed all 14 checks on the demo; SQLite sales-by-type and monthly aggregations reconciled with R on Windows. These checks establish model consistency, not the validity of any real business inference.
+
+Stock levels, purchases, historical classification tracking and customer-level analysis are outside the implemented model.

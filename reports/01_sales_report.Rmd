@@ -1,0 +1,909 @@
+---
+title: "PharmaBI — Retail sales analysis"
+author: "Danilo Caporicci"
+date: "`r format(Sys.Date(), '%Y-%m-%d')`"
+lang: en
+knit: |-
+  (function(input, ...) {
+    input_file <- normalizePath(input, winslash = "/", mustWork = TRUE)
+    project_root <- dirname(dirname(input_file))
+    handler_file <- file.path(project_root, "R", "reporting", "knit_and_email.R")
+    if (!file.exists(handler_file)) {
+      stop("Missing R/reporting/knit_and_email.R: install the Knit handler first.")
+    }
+    handler_env <- new.env(parent = globalenv())
+    sys.source(handler_file, envir = handler_env)
+    handler_env$knit_and_email(input_file, ...)
+  })
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    theme: flatly
+    self_contained: true
+---
+```{r}
+```
+
+
+```{r}
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  error = FALSE,
+  fig.width = 9,
+  fig.height = 4.8
+)
+
+# Reuse the project analysis; do not copy rounded Console results.
+analysis_file <- here::here("R", "analysis", "01_sales_overview.R")
+if (!file.exists(analysis_file)) {
+  stop("Open PharmaBI.Rproj and ensure R/analysis/01_sales_overview.R exists.")
+}
+source(analysis_file, local = TRUE)
+
+fmt_number <- function(x, digits = 0L) {
+  formatC(x, format = "f", digits = digits, big.mark = ",", decimal.mark = ".")
+}
+fmt_money <- function(x) paste0("EUR ", fmt_number(x, 2L))
+fmt_percent <- function(x) paste0(fmt_number(x * 100, 2L), "%")
+
+observed_retail_days <- dplyr::n_distinct(fact_sales_retail$date)
+
+monthly_report <- sales_monthly |>
+  dplyr::arrange(month) |>
+  dplyr::mutate(
+    month_start = as.Date(paste0(month, "-01")),
+    month_end = as.Date(format(month_start + 32, "%Y-%m-01")) - 1,
+    partial_coverage = month_start < sales_overview$start_date |
+      month_end > sales_overview$end_date,
+    coverage = dplyr::if_else(
+      partial_coverage,
+      "Partial calendar coverage",
+      "Full month within observation window"
+    )
+  )
+```
+
+*Internal working report — revision 6 (Knit delivery workflow).*
+
+# Scope and definitions
+
+The observed retail period runs from **`r format(sales_overview$start_date, '%Y-%m-%d')`**
+to **`r format(sales_overview$end_date, '%Y-%m-%d')`**.
+Receipt and temporal indicators use only records classified as `retail`.
+Other transactions are retained in the separate economic summary below.
+
+- **Net revenue:** the source-system `revenue` field excludes VAT, as supported by same-period selling-price checks on medicine sales. It is distinct from VAT-inclusive collections.
+- **Receipts:** distinct `sale_id` values within retail sales.
+- **Average net revenue per receipt:** retail net revenue divided by the number of retail receipts; this is not a VAT-inclusive cash-receipt average.
+- **Packages sold:** the quantity recorded in `packages`, not the number of doses or customers.
+- **Active days:** dates with at least one recorded retail sale, following the project calendar convention.
+- **Overall margin:** total profit divided by total net revenue.
+- **Profit:** the source-system measure calculated as revenue minus recorded costs; this report does not deduct additional operating expenses.
+
+Calculations use the original numeric values. Rounding is applied only for display.
+
+VAT-inclusive collections are not reconstructed in this report. Reconciliation
+with cash-register totals requires the applicable VAT rates and matching dates
+and transactions. A single VAT multiplier should not be applied to the entire
+assortment without verifying those rates.
+
+# Retail performance
+
+```{r retail-kpis}
+kpi_table <- data.frame(
+  Indicator = c(
+    "Active days", "Receipts", "Unique products", "Packages sold",
+    "Net revenue (VAT excluded)", "Recorded costs", "Profit", "Overall margin",
+    "Average net revenue per receipt", "Average profit per receipt",
+    "Net revenue per active day", "Profit per active day"
+  ),
+  Value = c(
+    fmt_number(observed_retail_days),
+    fmt_number(sales_overview$receipts),
+    fmt_number(sales_overview$unique_products),
+    fmt_number(sales_overview$packages_sold),
+    fmt_money(sales_overview$revenue),
+    fmt_money(sales_overview$costs),
+    fmt_money(sales_overview$profit),
+    fmt_percent(sales_overview$overall_margin),
+    fmt_money(sales_overview$average_receipt_value),
+    fmt_money(sales_overview$average_profit_per_receipt),
+    fmt_money(sales_overview$revenue / observed_retail_days),
+    fmt_money(sales_overview$profit / observed_retail_days)
+  )
+)
+knitr::kable(kpi_table, align = c("l", "r"))
+```
+
+# Economic summary by sale type
+
+The retail and non-retail classifications are shown separately. A non-retail
+transaction is not counted as a retail receipt. Its business nature should be
+documented before interpreting the transaction as wholesale or another activity.
+
+```{r sale-type-summary}
+type_table <- sales_by_type |>
+  dplyr::transmute(
+    `Sale type` = sale_type,
+    Transactions = fmt_number(transactions),
+    Packages = fmt_number(packages_sold),
+    `Net revenue` = fmt_money(revenue),
+    `Recorded costs` = fmt_money(costs),
+    Profit = fmt_money(profit),
+    Margin = fmt_percent(overall_margin)
+  )
+knitr::kable(type_table, align = c("l", rep("r", 6)))
+```
+
+# Monthly performance
+
+Monthly totals describe the recorded business volume. Daily averages support
+comparison between months with different numbers of active days.
+Partial calendar coverage is flagged using the observed retail start and end dates.
+A full month within the observation window can still include closure days.
+
+```{r monthly-table}
+monthly_table <- monthly_report |>
+  dplyr::transmute(
+    Month = month,
+    `Active days` = active_days,
+    Receipts = fmt_number(receipts),
+    `Net revenue` = fmt_money(revenue),
+    Profit = fmt_money(profit),
+    `Net revenue / day` = fmt_money(revenue_per_day),
+    `Profit / day` = fmt_money(profit_per_day),
+    Coverage = coverage
+  )
+knitr::kable(monthly_table, align = c("l", rep("r", 6), "l"))
+```
+
+## Daily economic performance
+
+```{r daily-performance-chart, fig.cap="Daily averages use days with recorded retail sales. Partial months remain descriptive observations; normalization does not remove differences in weekday composition."}
+chart_values <- cbind(
+  monthly_report$revenue_per_day,
+  monthly_report$profit_per_day
+)
+matplot(
+  seq_len(nrow(monthly_report)),
+  chart_values,
+  type = "b",
+  pch = c(16, 17),
+  lty = c(1, 2),
+  lwd = 2,
+  col = c("#19647E", "#647D34"),
+  xaxt = "n",
+  xlab = "Month (* = partial calendar coverage)",
+  ylab = "EUR per active day",
+  ylim = c(0, max(chart_values) * 1.12),
+  main = "Retail net revenue and profit per active day"
+)
+axis(
+  1,
+  at = seq_len(nrow(monthly_report)),
+  labels = paste0(
+    monthly_report$month,
+    ifelse(monthly_report$partial_coverage, "*", "")
+  )
+)
+legend(
+  "topright",
+  legend = c("Net revenue per day", "Profit per day"),
+  col = c("#19647E", "#647D34"),
+  pch = c(16, 17),
+  lty = c(1, 2),
+  lwd = 2,
+  bty = "n"
+)
+```
+
+# Product performance
+
+```{r product-setup, include=FALSE}
+product_analysis_file <- here::here("R", "analysis", "02_product_performance.R")
+if (!file.exists(product_analysis_file)) {
+  stop("Ensure R/analysis/02_product_performance.R exists.")
+}
+source(product_analysis_file, local = TRUE)
+
+stopifnot(
+  anyDuplicated(product_performance$product_code) == 0L,
+  nrow(product_performance) == sales_overview$unique_products,
+  sum(product_performance$packages_sold) == sales_overview$packages_sold,
+  isTRUE(all.equal(sum(product_performance$revenue), sales_overview$revenue)),
+  isTRUE(all.equal(sum(product_performance$profit), sales_overview$profit))
+)
+
+core_report <- segment_summary |>
+  dplyr::filter(performance_segment == "Core products")
+stopifnot(nrow(core_report) == 1L)
+
+zero_cost_report <- product_performance |>
+  dplyr::filter(zero_cost_flag)
+```
+
+Products are aggregated by `product_code`. Each code is displayed using its
+most recently observed description, while all its retail sales in the observation
+window contribute to its metrics. A description change therefore does not create
+a separate product in these results.
+
+## Sales volume and profit segmentation
+
+The segmentation uses the 75th percentiles of packages sold and total recorded
+profit across sold products. High sales volume means at least
+**`r fmt_number(as.numeric(rotation_threshold), 2L)` packages**, and high total
+profit means at least **`r fmt_money(as.numeric(profit_threshold))`**.
+The exact, unrounded thresholds are used for classification.
+
+These thresholds are relative to this assortment and observation window.
+Ties at a threshold can place more than 25% of products in its high group.
+Sales volume is measured in packages; inventory turnover requires stock data.
+Total profit contribution and margin percentage describe different aspects of
+performance.
+
+```{r product-segment-table}
+segment_table <- segment_summary |>
+  dplyr::transmute(
+    Segment = performance_segment,
+    Products = fmt_number(products),
+    `Product share` = fmt_percent(product_share),
+    `Packages sold` = fmt_number(packages_sold),
+    `Package share` = fmt_percent(package_share),
+    `Net revenue` = fmt_money(revenue),
+    `Recorded profit` = fmt_money(profit),
+    `Profit share` = fmt_percent(profit_share)
+  )
+knitr::kable(segment_table, align = c("l", rep("r", 7)))
+```
+
+The **`r fmt_number(core_report$products)` Core products** account for
+**`r fmt_percent(core_report$product_share)` of sold products**,
+**`r fmt_percent(core_report$package_share)` of packages**,
+**`r fmt_percent(core_report$revenue_share)` of net revenue**, and
+**`r fmt_percent(core_report$profit_share)` of recorded profit**.
+This identifies where much of the observed economic contribution is concentrated.
+Reorder quantities still require stock availability, purchasing and lead-time data.
+
+## Products with the highest recorded profit
+
+The following table ranks products by total recorded profit, rather than margin
+percentage. A zero-cost flag identifies products whose total recorded costs are
+zero; their profit contribution needs business validation.
+
+```{r product-top-profit}
+profit_table <- product_performance |>
+  dplyr::arrange(dplyr::desc(profit), product_code) |>
+  dplyr::slice_head(n = 10) |>
+  dplyr::transmute(
+    Code = product_code,
+    Product = product_desc,
+    Packages = fmt_number(packages_sold),
+    `Net revenue` = fmt_money(revenue),
+    `Recorded profit` = fmt_money(profit),
+    Margin = fmt_percent(overall_margin),
+    `Zero total recorded costs` = dplyr::if_else(zero_cost_flag, "Yes", "No")
+  )
+knitr::kable(profit_table, align = c("l", "l", rep("r", 4), "l"))
+```
+
+## Products with the highest sales volume
+
+Receipt frequency is the proportion of all retail receipts containing the product.
+It does not measure the proportion of customers. Package quantities also do not
+measure doses or comparable treatment durations across products.
+
+```{r product-top-packages}
+packages_table <- product_performance |>
+  dplyr::arrange(dplyr::desc(packages_sold), product_code) |>
+  dplyr::slice_head(n = 10) |>
+  dplyr::transmute(
+    Code = product_code,
+    Product = product_desc,
+    Packages = fmt_number(packages_sold),
+    `Receipt frequency` = fmt_percent(receipt_frequency),
+    `Net revenue` = fmt_money(revenue)
+  )
+knitr::kable(packages_table, align = c("l", "l", rep("r", 3)))
+```
+
+## Products with the highest net revenue
+
+```{r product-top-revenue}
+revenue_table <- product_performance |>
+  dplyr::arrange(dplyr::desc(revenue), product_code) |>
+  dplyr::slice_head(n = 10) |>
+  dplyr::transmute(
+    Code = product_code,
+    Product = product_desc,
+    `Net revenue` = fmt_money(revenue),
+    `Recorded profit` = fmt_money(profit),
+    Margin = fmt_percent(overall_margin)
+  )
+knitr::kable(revenue_table, align = c("l", "l", rep("r", 3)))
+```
+
+Each ranking displays at most ten products. Ties are resolved by product code
+for consistent presentation; tied products have the same value of the ranking
+metric.
+
+## Recorded cost checks
+
+```{r product-zero-cost-summary}
+zero_cost_table <- data.frame(
+  Indicator = c(
+    "Products with zero total recorded costs",
+    "Packages sold for these products",
+    "Net revenue for these products",
+    "Recorded profit for these products"
+  ),
+  Value = c(
+    fmt_number(nrow(zero_cost_report)),
+    fmt_number(sum(zero_cost_report$packages_sold)),
+    fmt_money(sum(zero_cost_report$revenue)),
+    fmt_money(sum(zero_cost_report$profit))
+  )
+)
+knitr::kable(zero_cost_table, align = c("l", "r"))
+```
+
+When recorded revenue is positive and total recorded costs are zero, the calculated
+margin is 100%. This result alone does not establish whether the acquisition cost
+was genuinely zero or was unavailable in the export. Original values are retained
+pending verification. This product-level flag does not identify every individual
+sale line with zero costs when the same product also has lines with positive costs.
+
+# Merchandise group performance
+
+```{r gm-setup, include=FALSE}
+gm_analysis_file <- here::here("R", "analysis", "03_gm_analysis.R")
+if (!file.exists(gm_analysis_file)) {
+  stop("Ensure R/analysis/03_gm_analysis.R exists.")
+}
+source(gm_analysis_file, local = TRUE)
+
+stopifnot(
+  !anyNA(fact_sales_retail[c("gm_code", "gm_desc")]),
+  anyDuplicated(gm_performance$gm_code) == 0L,
+  sum(gm_performance$products) == sales_overview$unique_products,
+  sum(gm_performance$packages_sold) == sales_overview$packages_sold,
+  isTRUE(all.equal(sum(gm_performance$revenue), sales_overview$revenue)),
+  isTRUE(all.equal(sum(gm_performance$profit), sales_overview$profit))
+)
+
+gm_ranked_report <- gm_performance |>
+  dplyr::arrange(dplyr::desc(profit), gm_code)
+
+gm_top_two_report <- gm_ranked_report |>
+  dplyr::slice_head(n = 2)
+
+gm_receipt_denominator <- dplyr::n_distinct(fact_sales_retail$sale_id)
+
+gm_threshold_counts <- as.integer(c(
+  gm_concentration_summary$categories_for_50_profit,
+  gm_concentration_summary$categories_for_75_profit,
+  gm_concentration_summary$categories_for_80_profit,
+  gm_concentration_summary$categories_for_90_profit
+))
+stopifnot(
+  length(gm_threshold_counts) == 4L,
+  !anyNA(gm_threshold_counts),
+  all(gm_threshold_counts >= 1L),
+  all(gm_threshold_counts <= nrow(gm_concentration))
+)
+```
+
+This analysis covers all retail products through their merchandise group (GM)
+classification. In the current fact table, each sold product belongs to one GM
+code, all sale lines have GM information, and each GM code has one description.
+The classification follows the project dimension rules; this report does not
+reconstruct historical changes in category membership.
+
+## Categories with the highest recorded profit
+
+```{r gm-top-profit}
+gm_profit_table <- gm_ranked_report |>
+  dplyr::slice_head(n = 15) |>
+  dplyr::transmute(
+    Code = gm_code,
+    Category = gm_desc,
+    Products = fmt_number(products),
+    Packages = fmt_number(packages_sold),
+    `Net revenue` = fmt_money(revenue),
+    `Recorded profit` = fmt_money(profit),
+    Margin = fmt_percent(overall_margin),
+    `Profit share` = fmt_percent(profit_share)
+  )
+knitr::kable(gm_profit_table, align = c("l", "l", rep("r", 6)))
+```
+
+The two categories with the highest recorded profit are
+**`r paste(gm_top_two_report$gm_desc, collapse = "; ")`**.
+Together they account for
+**`r fmt_percent(sum(gm_top_two_report$profit_share))` of recorded retail profit**,
+**`r fmt_percent(sum(gm_top_two_report$revenue_share))` of retail net revenue**,
+and **`r fmt_percent(sum(gm_top_two_report$package_share))` of packages sold**.
+
+This comparison describes economic contribution over the observed period.
+A category with a high percentage margin may still contribute little total profit
+if its sales volume or net revenue is small. Category margins also inherit any
+recorded-cost issues affecting their constituent products.
+
+## Concentration of recorded profit
+
+Categories are ordered by total recorded profit. The table shows the first number
+of categories needed to reach each target and the cumulative share actually
+achieved after including the category that crosses it.
+
+```{r gm-concentration-table}
+gm_concentration_table <- data.frame(
+  Target = c("50%", "75%", "80%", "90%"),
+  Categories = fmt_number(gm_threshold_counts),
+  `Share of all GM categories` = fmt_percent(
+    gm_threshold_counts / nrow(gm_performance)
+  ),
+  `Actual cumulative profit share` = fmt_percent(
+    gm_concentration$cumulative_profit_share[gm_threshold_counts]
+  ),
+  check.names = FALSE
+)
+knitr::kable(gm_concentration_table, align = c("l", "r", "r", "r"))
+```
+
+```{r gm-concentration-chart, fig.cap="GM categories are ranked by recorded profit. The curve uses unrounded values; dashed lines mark the 50%, 75%, 80% and 90% targets."}
+gm_cumulative_percent <- 100 * gm_concentration$cumulative_profit_share
+plot(
+  c(0, seq_len(nrow(gm_concentration))),
+  c(0, gm_cumulative_percent),
+  type = "l",
+  lwd = 2,
+  col = "#19647E",
+  xlab = "Number of categories included (ranked by recorded profit)",
+  ylab = "Cumulative share of recorded profit (%)",
+  ylim = range(c(0, 100, gm_cumulative_percent)),
+  main = "Concentration of retail profit across GM categories"
+)
+abline(h = c(50, 75, 80, 90), lty = 2, col = "grey75")
+points(
+  gm_threshold_counts,
+  gm_cumulative_percent[gm_threshold_counts],
+  pch = 16,
+  col = "#647D34"
+)
+text(
+  gm_threshold_counts,
+  gm_cumulative_percent[gm_threshold_counts],
+  labels = gm_threshold_counts,
+  pos = 4,
+  cex = 0.85,
+  col = "#647D34"
+)
+```
+
+**`r fmt_number(gm_concentration_summary$categories_for_80_profit)` categories**
+reach at least 80% of recorded retail profit. This describes concentration; it
+is not a rule for removing the remaining categories. Inventory decisions also
+require availability, purchasing and stock data, and consideration of each
+category's role in the assortment.
+
+The cumulative revenue and package shares in the analysis script follow the
+same profit-based category order. They describe the contribution of those
+selected categories rather than independent revenue or volume rankings.
+
+## Category contribution within receipts
+
+A GM receipt count is the number of distinct retail receipts containing at least
+one product from that category. The same receipt can contain multiple categories,
+so category receipt counts and frequencies cannot be summed to obtain a retail
+total.
+
+Average category net revenue per containing receipt is category net revenue
+divided by its receipt count. It measures the category's contribution, rather
+than the complete basket value.
+
+```{r gm-receipt-indicators}
+gm_receipt_table <- gm_performance |>
+  dplyr::arrange(dplyr::desc(receipts), gm_code) |>
+  dplyr::slice_head(n = 10) |>
+  dplyr::transmute(
+    Code = gm_code,
+    Category = gm_desc,
+    `Containing receipts` = fmt_number(receipts),
+    `Receipt frequency` = fmt_percent(receipts / gm_receipt_denominator),
+    `Average category net revenue per containing receipt` = fmt_money(
+      average_category_revenue_per_receipt
+    )
+  )
+knitr::kable(gm_receipt_table, align = c("l", "l", rep("r", 3)))
+```
+
+# ATC category performance
+
+```{r atc-setup, include=FALSE}
+atc_analysis_file <- here::here("R", "analysis", "04_atc_analysis.R")
+atc_reference_file <- here::here("data", "reference", "atc_reference.rds")
+if (!file.exists(atc_analysis_file)) {
+  stop("Ensure R/analysis/04_atc_analysis.R exists.")
+}
+if (!file.exists(atc_reference_file)) {
+  stop("Build the local reference first: source(here::here('R', 'reference', '01_build_atc_reference.R')).")
+}
+source(atc_analysis_file, local = TRUE)
+
+stopifnot(
+  anyDuplicated(atc_level2_labels$atc_level2) == 0L,
+  anyDuplicated(atc_level2_performance$atc_level2) == 0L,
+  nrow(atc_level2_missing_labels) == 0L,
+  sum(atc_level2_performance$packages_sold) ==
+    sum(fact_sales_atc_human$packages),
+  isTRUE(all.equal(
+    sum(atc_level2_performance$revenue), sum(fact_sales_atc_human$revenue)
+  )),
+  isTRUE(all.equal(
+    sum(atc_level2_performance$profit), sum(fact_sales_atc_human$profit)
+  )),
+  nrow(fact_sales_atc_human) + nrow(fact_sales_atc_vet) == nrow(fact_sales_atc)
+)
+
+atc_scope_report <- fact_sales |>
+  dplyr::filter(sale_type == "retail") |>
+  dplyr::mutate(
+    atc_scope = dplyr::case_when(
+      is.na(atc_code) ~ "Without ATC classification",
+      atc_code %in% veterinary_atc_codes ~ "Identified veterinary ATC codes",
+      TRUE ~ "Human ATC subset under current rules"
+    )
+  ) |>
+  dplyr::group_by(atc_scope) |>
+  dplyr::summarise(
+    products = dplyr::n_distinct(product_code),
+    packages_sold = sum(packages),
+    receipts = dplyr::n_distinct(sale_id),
+    revenue = sum(revenue),
+    profit = sum(profit),
+    .groups = "drop"
+  )
+
+stopifnot(
+  sum(atc_scope_report$packages_sold) == sales_overview$packages_sold,
+  isTRUE(all.equal(sum(atc_scope_report$revenue), sales_overview$revenue)),
+  isTRUE(all.equal(sum(atc_scope_report$profit), sales_overview$profit))
+)
+
+atc_threshold_counts <- as.integer(atc_concentration_summary$categories)
+stopifnot(
+  length(atc_threshold_counts) == 4L,
+  !anyNA(atc_threshold_counts),
+  all(atc_threshold_counts >= 1L),
+  all(atc_threshold_counts <= nrow(atc_level2_concentration))
+)
+
+atc_drilldown_totals <- atc_level2_performance |>
+  dplyr::transmute(atc_level2, category_packages = packages_sold)
+
+atc_top_products_report <- top_products_m01_n02 |>
+  dplyr::left_join(atc_drilldown_totals, by = "atc_level2") |>
+  dplyr::mutate(category_package_share = packages_sold / category_packages)
+
+stopifnot(
+  anyDuplicated(b05_product_performance$product_code) == 0L,
+  anyDuplicated(top_products_m01_n02[c("atc_level2", "product_code")]) == 0L
+)
+```
+
+## Scope and coverage
+
+The following table separates retail sale lines without ATC classification,
+identified veterinary codes, and the human ATC subset used in this section.
+Only the last subset contributes to the category shares and concentration below.
+
+```{r atc-scope-table}
+atc_scope_table <- atc_scope_report |>
+  dplyr::transmute(
+    Scope = atc_scope,
+    Products = fmt_number(products),
+    Packages = fmt_number(packages_sold),
+    `Containing receipts` = fmt_number(receipts),
+    `Net revenue` = fmt_money(revenue),
+    `Recorded profit` = fmt_money(profit),
+    `Share of retail net revenue` = fmt_percent(revenue / sales_overview$revenue)
+  )
+knitr::kable(atc_scope_table, align = c("l", rep("r", 6)))
+```
+
+The veterinary split uses the explicitly identified source codes
+**`r paste(veterinary_atc_codes, collapse = ", ")`**.
+This is a rule for the current export, and the list requires review when new
+codes appear. An entire initial-letter group is not excluded as veterinary.
+
+Unclassified retail lines remain part of the overall product and GM analyses.
+Lack of ATC classification does not mean a sale is missing or invalid.
+A receipt can contain products from more than one scope, so the containing-receipt
+counts above are not additive.
+
+Official level-2 descriptions come from the locally built AIFA reference table.
+These groups describe the classification of products sold; sales alone do not
+establish local disease prevalence, patient counts or reasons for purchase.
+
+## Human ATC categories with the highest package volume
+
+```{r atc-top-categories}
+atc_category_table <- atc_level2_performance |>
+  dplyr::arrange(dplyr::desc(packages_sold), atc_level2) |>
+  dplyr::slice_head(n = 10) |>
+  dplyr::transmute(
+    Code = atc_level2,
+    Category = atc_level2_desc,
+    Packages = fmt_number(packages_sold),
+    `Package share` = fmt_percent(package_share),
+    `Net revenue` = fmt_money(revenue),
+    `Recorded profit` = fmt_money(profit),
+    Margin = fmt_percent(overall_margin)
+  )
+knitr::kable(atc_category_table, align = c("l", "l", rep("r", 5)))
+```
+
+Package, revenue and profit shares use their respective totals within the human
+ATC subset. They should not be interpreted as shares of all retail sales.
+Package counts describe recorded quantities, rather than comparable doses or
+numbers of patients.
+
+## Concentration of packages sold
+
+Here categories are ranked by packages sold. The concentration measure differs
+from the GM analysis, which ranks categories by recorded profit and measures
+cumulative profit share.
+
+```{r atc-concentration-table}
+atc_concentration_table <- data.frame(
+  Target = atc_concentration_summary$threshold,
+  Categories = fmt_number(atc_threshold_counts),
+  `Share of human ATC level-2 categories` = fmt_percent(
+    atc_threshold_counts / nrow(atc_level2_performance)
+  ),
+  `Actual cumulative package share` = fmt_percent(
+    atc_level2_concentration$cumulative_package_share[atc_threshold_counts]
+  ),
+  check.names = FALSE
+)
+knitr::kable(atc_concentration_table, align = c("l", "r", "r", "r"))
+```
+
+```{r atc-concentration-chart, fig.cap="Human ATC level-2 categories are ranked by packages sold. The curve uses unrounded values; dashed lines mark the 50%, 75%, 80% and 90% targets."}
+atc_cumulative_percent <- 100 * atc_level2_concentration$cumulative_package_share
+plot(
+  c(0, seq_len(nrow(atc_level2_concentration))),
+  c(0, atc_cumulative_percent),
+  type = "l",
+  lwd = 2,
+  col = "#19647E",
+  xlab = "Number of human ATC categories included (ranked by packages)",
+  ylab = "Cumulative share of human ATC packages (%)",
+  ylim = range(c(0, 100, atc_cumulative_percent)),
+  main = "Concentration of packages across human ATC categories"
+)
+abline(h = c(50, 75, 80, 90), lty = 2, col = "grey75")
+points(
+  atc_threshold_counts,
+  atc_cumulative_percent[atc_threshold_counts],
+  pch = 16,
+  col = "#647D34"
+)
+text(
+  atc_threshold_counts,
+  atc_cumulative_percent[atc_threshold_counts],
+  labels = atc_threshold_counts,
+  pos = 4,
+  cex = 0.85,
+  col = "#647D34"
+)
+```
+
+**`r fmt_number(atc_categories_for_80)` categories** reach at least 80% of the
+packages sold within the human ATC subset. This identifies observed volume
+concentration without establishing an inventory reorder policy.
+
+## Human ATC category contribution within receipts
+
+The denominator for receipt frequency is the
+**`r fmt_number(total_human_atc_receipts)` retail receipts containing at least one
+product in the human ATC subset**, rather than all retail receipts.
+A receipt can contain multiple ATC categories, so category frequencies are not
+additive.
+
+```{r atc-receipt-indicators}
+atc_receipt_table <- atc_level2_performance |>
+  dplyr::arrange(dplyr::desc(receipts), atc_level2) |>
+  dplyr::slice_head(n = 10) |>
+  dplyr::transmute(
+    Code = atc_level2,
+    Category = atc_level2_desc,
+    `Containing receipts` = fmt_number(receipts),
+    `Frequency within human ATC receipts` = fmt_percent(receipt_frequency),
+    `Average category net revenue per containing receipt` = fmt_money(
+      average_category_revenue_per_receipt
+    )
+  )
+knitr::kable(atc_receipt_table, align = c("l", "l", rep("r", 3)))
+```
+
+The average is the category's net revenue contribution per containing receipt,
+not the complete value of the basket.
+
+## B05 product-level detail
+
+Broad category descriptions need product-level inspection to understand what was
+actually sold. In B05, the table below lists all contributing product codes,
+using their latest observed descriptions.
+
+```{r atc-b05-products}
+b05_table <- b05_product_performance |>
+  dplyr::transmute(
+    Code = product_code,
+    Product = product_desc,
+    ATC = atc_code,
+    Packages = fmt_number(packages_sold),
+    `Containing receipts` = fmt_number(receipts),
+    `Net revenue` = fmt_money(revenue),
+    `Recorded profit` = fmt_money(profit)
+  )
+knitr::kable(b05_table, align = c("l", "l", "l", rep("r", 4)))
+```
+
+These **`r fmt_number(nrow(b05_product_performance))` products** account for
+**`r fmt_number(sum(b05_product_performance$packages_sold))` packages**,
+**`r fmt_money(sum(b05_product_performance$revenue))` in net revenue**, and
+**`r fmt_money(sum(b05_product_performance$profit))` in recorded profit**.
+Product receipt counts can overlap and should not be added to obtain the B05
+category receipt count. Neither the broad category label nor the product names
+establish the customer's intended use.
+
+## Leading products within M01 and N02
+
+This table shows up to five products per category, ranked by packages sold.
+Product codes define the aggregation; the latest description is used for display.
+Ties are resolved by product code. Package shares use each product's own ATC
+level-2 category as the denominator.
+
+```{r atc-m01-n02-products}
+atc_top_products_table <- atc_top_products_report |>
+  dplyr::transmute(
+    Category = atc_level2,
+    Code = product_code,
+    Product = product_desc,
+    Packages = fmt_number(packages_sold),
+    `Share of category packages` = fmt_percent(category_package_share),
+    `Net revenue` = fmt_money(revenue),
+    `Recorded profit` = fmt_money(profit)
+  )
+knitr::kable(atc_top_products_table, align = c("l", "l", "l", rep("r", 4)))
+
+atc_top_five_summary <- atc_top_products_report |>
+  dplyr::group_by(atc_level2) |>
+  dplyr::summarise(
+    products_shown = dplyr::n_distinct(product_code),
+    packages_shown = sum(packages_sold),
+    category_packages = dplyr::first(category_packages),
+    .groups = "drop"
+  ) |>
+  dplyr::transmute(
+    Category = atc_level2,
+    `Products shown` = fmt_number(products_shown),
+    `Packages shown` = fmt_number(packages_shown),
+    `Total category packages` = fmt_number(category_packages),
+    `Share covered by shown products` = fmt_percent(packages_shown / category_packages)
+  )
+knitr::kable(atc_top_five_summary, align = c("l", rep("r", 4)))
+```
+
+These are volume rankings. The product with the highest profit or revenue among
+the displayed rows is not necessarily the leader across the entire category.
+Differences in package sizes also limit comparisons based on package counts.
+
+# Receipt basket analysis
+
+```{r basket-setup, include=FALSE}
+source(
+  here::here("R", "analysis", "06_basket_pairs.R"),
+  local = TRUE
+)
+```
+
+This analysis describes retail receipts within the same observation window.
+Distinct products are counted by product code. Package quantities are counted
+separately: multiple packages of the same product constitute one distinct product.
+
+## Basket structure
+
+```{r basket-kpis}
+basket_kpi_table <- data.frame(
+  Indicator = c(
+    "Retail receipts",
+    "Receipts with one distinct product",
+    "Receipts with at least two distinct products",
+    "Share of receipts with at least two distinct products",
+    "Average distinct products per receipt",
+    "Median distinct products per receipt",
+    "Maximum distinct products per receipt",
+    "Average packages per receipt",
+    "Average net revenue per receipt",
+    "Median net revenue per receipt"
+  ),
+  Value = c(
+    fmt_number(basket_overview$receipts),
+    fmt_number(basket_overview$single_product_receipts),
+    fmt_number(basket_overview$multi_product_receipts),
+    fmt_percent(basket_overview$multi_product_receipt_share),
+    fmt_number(basket_overview$average_unique_products, 2L),
+    fmt_number(basket_overview$median_unique_products),
+    fmt_number(basket_overview$maximum_unique_products),
+    fmt_number(basket_overview$average_packages, 2L),
+    fmt_money(basket_overview$average_net_revenue_per_receipt),
+    fmt_money(basket_overview$median_net_revenue_per_receipt)
+  )
+)
+
+knitr::kable(basket_kpi_table, align = c("l", "r"))
+```
+
+## Recurring product pairs
+
+The table includes pairs observed together in at least
+**`r fmt_number(minimum_pair_receipts)` retail receipts**.
+This count threshold is an exploratory selection criterion.
+
+- **Support:** proportion of all retail receipts containing both products.
+- **Confidence A to B:** proportion of receipts containing A that also contain B.
+- **Confidence B to A:** proportion of receipts containing B that also contain A.
+- **Lift:** observed co-purchase frequency divided by the frequency expected
+  under independence.
+
+Results describe receipts. The available data do not identify distinct customers.
+High lift values should be interpreted together with the observed receipt counts.
+
+```{r basket-recurring-pairs}
+pair_report <- recurrent_pairs |>
+  dplyr::transmute(
+    `Product A` = product_desc_a,
+    `Product B` = product_desc_b,
+    `Receipts together` = fmt_number(receipts_together),
+    Support = paste0(fmt_number(support * 100, 3L), "%"),
+    `Confidence A to B` = fmt_percent(confidence_a_to_b),
+    `Confidence B to A` = fmt_percent(confidence_b_to_a),
+    Lift = fmt_number(lift, 2L)
+  )
+
+knitr::kable(
+  pair_report,
+  align = c("l", "l", rep("r", 5))
+)
+```
+
+# Interpretation and next steps
+
+This first report establishes the retail baseline and separates non-retail
+operations from receipt indicators. The monthly comparison is descriptive;
+identifying recurring seasonal patterns requires comparable historical data.
+
+The product analysis identifies the contribution of individual products and
+relative performance segments. Recorded zero costs require business verification
+before drawing conclusions about the affected margins.
+
+The merchandise group analysis adds an assortment-wide view of economic
+contribution and concentration, with category totals reconciled to the retail
+baseline.
+
+The ATC analysis describes package concentration and category contributions
+within the human classified subset, supported by selected product-level details.
+GM and ATC concentration results use different scopes and measures and should
+not be compared as if they described the same distribution.
+
+The next steps are to verify recorded zero costs, reconcile VAT-inclusive
+cash-register totals with matching source transactions, and explore receipt
+baskets. Comparable historical data are required for seasonal comparisons.
+Purchase and stock data will support inventory turnover and reorder analysis.

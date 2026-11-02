@@ -1,0 +1,45 @@
+table dim_atc_level2
+	lineageTag: a1d101a1-9c27-4ae3-887f-7913cf2e29f7
+
+	column atc_level2
+		dataType: string
+		lineageTag: 3ba2e46b-3bc4-4998-ab74-a95a1e60b427
+		summarizeBy: none
+		sourceColumn: atc_level2
+
+		annotation SummarizationSetBy = Automatic
+
+	column atc_level2_desc
+		dataType: string
+		lineageTag: 74be84c4-ac2c-47fa-b1e3-9becf3347024
+		summarizeBy: none
+		sourceColumn: atc_level2_desc
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'ATC Label' =
+			
+			dim_atc_level2[atc_level2_desc]
+			    & " ["
+			    & dim_atc_level2[atc_level2]
+			    & "]"
+		lineageTag: 7a8c0a1c-0292-4a1b-9c45-ab7a88115768
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_atc_level2 = m
+		mode: import
+		source =
+				let
+				    Origine = Csv.Document(File.Contents(DataFolder & "dim_atc_level2.csv"),[Delimiter=",", Columns=2, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    #"Modifica tipo" = Table.TransformColumnTypes(Origine,{{"Column1", type text}, {"Column2", type text}}),
+				    #"Intestazioni alzate di livello" = Table.PromoteHeaders(#"Modifica tipo", [PromoteAllScalars=true]),
+				    #"Modificato tipo" = Table.TransformColumnTypes(#"Intestazioni alzate di livello",{{"atc_level2", type text}, {"atc_level2_desc", type text}})
+				in
+				    #"Modificato tipo"
+
+	annotation PBI_NavigationStepName = Navigazione
+
+	annotation PBI_ResultType = Table
+

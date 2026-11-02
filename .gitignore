@@ -1,0 +1,70 @@
+# =====================================
+# R / RStudio
+# =====================================
+
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+
+# =====================================
+# Operating System
+# =====================================
+
+.DS_Store
+Thumbs.db
+
+# =====================================
+# Business data (never commit)
+# =====================================
+
+data/raw/*
+data/clean/*
+data/dimensions/*
+data/facts/*
+
+# Keep folder structure
+!data/raw/.gitkeep
+!data/clean/.gitkeep
+!data/dimensions/.gitkeep
+!data/facts/.gitkeep
+
+# =====================================
+# Generated outputs
+# =====================================
+
+output/tables/*
+output/figures/*
+output/reports/*
+
+# Keep folder structure
+!output/tables/.gitkeep
+!output/figures/.gitkeep
+!output/reports/.gitkeep
+
+# Downloaded and generated ATC reference data
+data/reference/*.csv
+data/reference/*.rds
+
+# Reports hidden
+reports/*.html
+config/report_email.R
+reports/*.pdf
+
+data/database/
+/data/powerbi/
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+*.pbix
+
+# Generated HTML documentation
+/docs/*.html
+
+# Generated synthetic demonstration data
+/data/demo/
+
+# Internal release checklist containing real-data evidence
+/docs/release_checklist.md
+
+# Private receipt classification rules
+/config/sales_classification.R

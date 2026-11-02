@@ -1,0 +1,434 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "f1450ecada3c4ba74e5a",
+  "position": {
+    "x": 576,
+    "y": 0,
+    "z": 0,
+    "height": 704,
+    "width": 1344,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "clusteredBarChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_products"
+                    }
+                  },
+                  "Property": "Product Label"
+                }
+              },
+              "queryRef": "dim_products.Product Label",
+              "nativeQueryRef": "Product Label",
+              "active": true
+            }
+          ]
+        },
+        "Tooltips": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_sales_retail"
+                    }
+                  },
+                  "Property": "Net Revenue"
+                }
+              },
+              "queryRef": "fact_sales_retail.Net Revenue",
+              "nativeQueryRef": "Net Revenue"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_sales_retail"
+                    }
+                  },
+                  "Property": "Packages Sold"
+                }
+              },
+              "queryRef": "fact_sales_retail.Packages Sold",
+              "nativeQueryRef": "Packages Sold"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_sales_retail"
+                    }
+                  },
+                  "Property": "Receipts"
+                }
+              },
+              "queryRef": "fact_sales_retail.Receipts",
+              "nativeQueryRef": "Receipts"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_sales_retail"
+                    }
+                  },
+                  "Property": "Overall Margin"
+                }
+              },
+              "queryRef": "fact_sales_retail.Overall Margin",
+              "nativeQueryRef": "Overall Margin"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_sales_retail"
+                    }
+                  },
+                  "Property": "Recorded Profit"
+                }
+              },
+              "queryRef": "fact_sales_retail.Recorded Profit",
+              "nativeQueryRef": "Recorded Profit"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_sales_retail"
+                    }
+                  },
+                  "Property": "Selected Ranking Metric"
+                }
+              },
+              "queryRef": "fact_sales_retail.Selected Product Metric",
+              "nativeQueryRef": "Selected Product Metric"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "fact_sales_retail"
+                  }
+                },
+                "Property": "Selected Ranking Metric"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "objects": {
+      "labels": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "labelDisplayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "1D"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "12D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "categoryAxis": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "15D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "valueAxis": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "14D"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Top 10 products by selected metric'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualTooltip": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "showActionsInTooltips": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "showTooltipFieldsOnly": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "9781c7fd729ca47b70bd",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_products"
+              }
+            },
+            "Property": "Product Label"
+          }
+        },
+        "type": "TopN",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "subquery",
+              "Expression": {
+                "Subquery": {
+                  "Query": {
+                    "Version": 2,
+                    "From": [
+                      {
+                        "Name": "d",
+                        "Entity": "dim_products",
+                        "Type": 0
+                      },
+                      {
+                        "Name": "f",
+                        "Entity": "fact_sales_retail",
+                        "Type": 0
+                      }
+                    ],
+                    "Select": [
+                      {
+                        "Column": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Source": "d"
+                            }
+                          },
+                          "Property": "Product Label"
+                        },
+                        "Name": "field"
+                      }
+                    ],
+                    "OrderBy": [
+                      {
+                        "Direction": 2,
+                        "Expression": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Source": "f"
+                              }
+                            },
+                            "Property": "Selected Ranking Metric"
+                          }
+                        }
+                      }
+                    ],
+                    "Top": 10
+                  }
+                }
+              },
+              "Type": 2
+            },
+            {
+              "Name": "d",
+              "Entity": "dim_products",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "d"
+                          }
+                        },
+                        "Property": "Product Label"
+                      }
+                    }
+                  ],
+                  "Table": {
+                    "SourceRef": {
+                      "Source": "subquery"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "3490ef258be5051e9de8",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_sales_retail"
+              }
+            },
+            "Property": "Net Revenue"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "7b62637d35d6d294a0b5",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_sales_retail"
+              }
+            },
+            "Property": "Packages Sold"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "2685811cb20846280644",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_sales_retail"
+              }
+            },
+            "Property": "Receipts"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "5337b4d05d370872576a",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_sales_retail"
+              }
+            },
+            "Property": "Overall Margin"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "5a4382fa7d6ac1330ddc",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_sales_retail"
+              }
+            },
+            "Property": "Selected Ranking Metric"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

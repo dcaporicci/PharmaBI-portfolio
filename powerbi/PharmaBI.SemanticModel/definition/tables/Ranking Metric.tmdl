@@ -1,0 +1,26 @@
+table 'Ranking Metric'
+	lineageTag: ba54b1a4-031a-4f15-9e21-1dfbd0b7c378
+
+	column Metric
+		lineageTag: 57842742-e59f-449c-9f9c-0b5be518bd6d
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Metric]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Ranking Metric' = calculated
+		mode: import
+		source =
+				
+				DATATABLE(
+				    "Metric", STRING,
+				    {
+				        { "Recorded profit" },
+				        { "Net revenue" },
+				        { "Packages sold" }
+				    }
+				)
+
+	annotation PBI_Id = dc7304ea46fe4054b8a289b4e9ea53c8
+

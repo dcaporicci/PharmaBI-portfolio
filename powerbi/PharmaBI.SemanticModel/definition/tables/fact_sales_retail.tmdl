@@ -1,0 +1,293 @@
+table fact_sales_retail
+	lineageTag: c21b9dcd-8796-4240-b83e-a3b7e7aed34d
+
+	measure 'Net Revenue' = SUM(fact_sales_retail[revenue])
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: 70731af5-68a4-4b26-bdc1-6ca3596538b5
+
+		annotation PBI_FormatHint = {"currencyCulture":"it-IT"}
+
+	measure 'Recorded Profit' =
+			
+			SUM(fact_sales_retail[profit])
+		formatString: #,0.000\ "€";-#,0.000\ "€";#,0.000\ "€"
+		lineageTag: d3b7a75d-a507-45d2-a9a5-850ebc1edaed
+
+		annotation PBI_FormatHint = {"currencyCulture":"it-IT"}
+
+	measure Receipts =
+			
+			DISTINCTCOUNT(fact_sales_retail[sale_id])
+		formatString: 0
+		lineageTag: d9334d34-3ae0-4c5a-9d15-59f3cd7c1ae3
+
+	measure 'Overall Margin' =
+			
+			DIVIDE(
+			    [Recorded Profit],
+			    [Net Revenue]
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: e77ea133-bf18-4391-95f2-7ba575d34a2c
+
+	measure 'Packages Sold' =
+			
+			SUM(fact_sales_retail[packages])
+		formatString: 0
+		lineageTag: 01a12525-391f-4593-b8a2-37d69c4eb6e0
+
+	measure 'Selected Ranking Metric' =
+			
+			SWITCH(
+			    SELECTEDVALUE(
+			        'Ranking Metric'[Metric],
+			        "Recorded profit"
+			    ),
+			    "Recorded profit", [Recorded Profit],
+			    "Net revenue", [Net Revenue],
+			    "Packages sold", [Packages Sold]
+			)
+		lineageTag: e7db20e2-da24-4634-8ab0-630e611be230
+
+		formatStringDefinition =
+				IF(
+				    SELECTEDVALUE(
+				        'Ranking Metric'[Metric],
+				        "Recorded profit"
+				    ) = "Packages sold",
+				    "#,##0",
+				    "€ #,##0.000"
+				)
+
+	measure 'Distinct Products Sold' =
+			
+			DISTINCTCOUNT(fact_sales_retail[product_code])
+		formatString: 0
+		lineageTag: 68d6257e-9eca-46d8-b118-4ab143ad083c
+
+	column date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 23e42c5e-fe25-4853-9b2e-3ebdc48c55e3
+		summarizeBy: none
+		sourceColumn: date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column time_slot_quarter
+		dataType: string
+		lineageTag: b9d7c107-c9cb-46be-ac38-c49dd917c072
+		summarizeBy: none
+		sourceColumn: time_slot_quarter
+
+		annotation SummarizationSetBy = Automatic
+
+	column time_slot_half
+		dataType: string
+		lineageTag: 3a71a47c-f217-4cd0-a336-4e05bc73db43
+		summarizeBy: none
+		sourceColumn: time_slot_half
+
+		annotation SummarizationSetBy = Automatic
+
+	column time_slot_hour
+		dataType: string
+		lineageTag: 2877d6ab-d39e-4081-862f-6224ee86a5fe
+		summarizeBy: none
+		sourceColumn: time_slot_hour
+
+		annotation SummarizationSetBy = Automatic
+
+	column sale_id
+		dataType: string
+		lineageTag: 1aa3e154-078a-4b29-9395-d13fba74dced
+		summarizeBy: none
+		sourceColumn: sale_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column number_sales
+		dataType: int64
+		formatString: 0
+		lineageTag: d2f1b895-18b5-425f-a80e-63dc86b7b76a
+		summarizeBy: sum
+		sourceColumn: number_sales
+
+		annotation SummarizationSetBy = Automatic
+
+	column manufacturer_code
+		dataType: string
+		lineageTag: 341b1e7d-882d-42b4-a1fd-fa6ac5648ac8
+		summarizeBy: none
+		sourceColumn: manufacturer_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column manufacturer_desc
+		dataType: string
+		lineageTag: e23785be-a691-43f2-8c64-143817699951
+		summarizeBy: none
+		sourceColumn: manufacturer_desc
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_code
+		dataType: string
+		lineageTag: 79a94b65-41d2-4efd-81e4-597f3267f68b
+		summarizeBy: none
+		sourceColumn: product_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_desc
+		dataType: string
+		lineageTag: 361eafe8-8fe5-45d8-98dc-45e7941822ed
+		summarizeBy: none
+		sourceColumn: product_desc
+
+		annotation SummarizationSetBy = Automatic
+
+	column gm_code
+		dataType: string
+		lineageTag: 9a1513e6-8be4-4cec-b0be-03645f5a0268
+		summarizeBy: none
+		sourceColumn: gm_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column gm_desc
+		dataType: string
+		lineageTag: 1b233af5-9e1d-41b6-a9fc-1a14f1a3ac42
+		summarizeBy: none
+		sourceColumn: gm_desc
+
+		annotation SummarizationSetBy = Automatic
+
+	column atc_code
+		dataType: string
+		lineageTag: 65c2bcbe-f07a-4c70-a7ff-1c47995e4fbb
+		summarizeBy: none
+		sourceColumn: atc_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column atc_desc
+		dataType: string
+		lineageTag: 4ccfc50b-d851-4487-8abd-3f43e2a38a13
+		summarizeBy: none
+		sourceColumn: atc_desc
+
+		annotation SummarizationSetBy = Automatic
+
+	column revenue
+		dataType: decimal
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: 60225f7b-5c00-4a7e-a990-6b3cec0c1a9e
+		summarizeBy: sum
+		sourceColumn: revenue
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"it-IT"}
+
+	column costs
+		dataType: decimal
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: 2ff24072-6bb2-467d-b490-2324cc743be5
+		summarizeBy: sum
+		sourceColumn: costs
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"it-IT"}
+
+	column profit
+		dataType: decimal
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: e752d6a2-6459-4b00-997f-ee6e0cf327d5
+		summarizeBy: sum
+		sourceColumn: profit
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"it-IT"}
+
+	column margin
+		dataType: double
+		lineageTag: cb8e909d-9ca0-4db5-b89e-0ea2bd38be94
+		summarizeBy: sum
+		sourceColumn: margin
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column packages
+		dataType: int64
+		formatString: 0
+		lineageTag: 89fccf7b-ec9a-49b2-9af4-a014b946ce3b
+		summarizeBy: sum
+		sourceColumn: packages
+
+		annotation SummarizationSetBy = Automatic
+
+	column sale_type
+		dataType: string
+		lineageTag: c7fca037-9271-4ea3-94f4-31d42d89b2f3
+		summarizeBy: none
+		sourceColumn: sale_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column atc_level2
+		dataType: string
+		lineageTag: 12303b2e-5f01-41ba-80d7-3d7e902e3a46
+		summarizeBy: none
+		sourceColumn: atc_level2
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_human_atc
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 250f900f-2653-4c9b-bc51-cb8119eaafbd
+		summarizeBy: none
+		sourceColumn: is_human_atc
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_sales_retail = m
+		mode: import
+		source =
+				let
+				    Origine = Csv.Document(File.Contents(DataFolder & "fact_sales_retail.csv"),[Delimiter=",", Columns=20, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    #"Intestazioni alzate di livello" = Table.PromoteHeaders(Origine, [PromoteAllScalars=true]),
+				    #"Modificato tipo" = Table.TransformColumnTypes(#"Intestazioni alzate di livello",{{"date", type date}, {"number_sales", Int64.Type}, {"packages", Int64.Type}}),
+				    #"Modificato tipo con impostazioni locali" = Table.TransformColumnTypes(#"Modificato tipo", {{"revenue", Currency.Type}, {"costs", Currency.Type}, {"profit", Currency.Type}}, "en-US"),
+				    #"Modificato tipo con impostazioni locali1" = Table.TransformColumnTypes(#"Modificato tipo con impostazioni locali", {{"margin", type number}}, "en-US"),
+				    #"Aggiunta colonna personalizzata" = Table.AddColumn(#"Modificato tipo con impostazioni locali1", "atc_level2", each if [atc_code] = null then
+				    null
+				else
+				    Text.Start([atc_code], 3)),
+				    #"Modificato tipo1" = Table.TransformColumnTypes(#"Aggiunta colonna personalizzata",{{"atc_level2", type text}}),
+				    #"Aggiunta colonna personalizzata1" = Table.AddColumn(#"Modificato tipo1", "is_human_atc", each if [atc_code] = null or Text.Trim([atc_code]) = "" then
+				    false
+				else
+				    not List.Contains(
+				        {
+				            "P52AC13",
+				            "P53AX65",
+				            "P54AB51"
+				        },
+				        [atc_code]
+				    )),
+				    #"Modificato tipo2" = Table.TransformColumnTypes(#"Aggiunta colonna personalizzata1",{{"is_human_atc", type logical}})
+				in
+				    #"Modificato tipo2"
+
+	annotation PBI_NavigationStepName = Navigazione
+
+	annotation PBI_ResultType = Table
+

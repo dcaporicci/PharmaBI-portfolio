@@ -1,0 +1,44 @@
+table dim_gm
+	lineageTag: d126519d-72f6-446c-9bf4-8eeb5475432e
+
+	column gm_code
+		dataType: string
+		lineageTag: 6f18a276-1d27-4903-bca1-b434f2649435
+		summarizeBy: none
+		sourceColumn: gm_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column gm_desc
+		dataType: string
+		lineageTag: e6223667-d732-4a08-8d75-470755f04e4b
+		summarizeBy: none
+		sourceColumn: gm_desc
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'GM Label' =
+			
+			dim_gm[gm_desc]
+			    & " ["
+			    & dim_gm[gm_code]
+			    & "]"
+		lineageTag: adc13b17-b2f2-483a-9b7a-7c0a3e43497c
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_gm = m
+		mode: import
+		source =
+				let
+				    Origine = fact_sales_retail,
+				    #"Rimosse altre colonne" = Table.SelectColumns(Origine,{"gm_code", "gm_desc"}),
+				    #"Rimossi duplicati" = Table.Distinct(#"Rimosse altre colonne")
+				in
+				    #"Rimossi duplicati"
+
+	annotation PBI_NavigationStepName = Navigazione
+
+	annotation PBI_ResultType = Table
+

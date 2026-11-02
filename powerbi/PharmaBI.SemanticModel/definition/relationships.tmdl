@@ -1,0 +1,16 @@
+relationship ead951cb-bdd0-4b1d-5731-11363c6a2756
+	fromColumn: fact_sales_retail.date
+	toColumn: dim_date.date
+
+relationship AutoDetected_c09244a5-0443-4035-8307-c934e2f587d6
+	fromColumn: fact_sales_retail.product_code
+	toColumn: dim_products.product_code
+
+relationship AutoDetected_a6e14640-6d29-4b4b-93d0-9bc1cc8c9fdd
+	fromColumn: fact_sales_retail.gm_code
+	toColumn: dim_gm.gm_code
+
+relationship be8a7b4a-da28-123c-c2f2-e7e3b80ad328
+	fromColumn: fact_sales_retail.atc_level2
+	toColumn: dim_atc_level2.atc_level2
+

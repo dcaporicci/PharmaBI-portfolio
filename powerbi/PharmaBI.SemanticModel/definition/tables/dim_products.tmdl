@@ -1,0 +1,45 @@
+table dim_products
+	lineageTag: 1dae25c9-3f88-4bd9-b4ec-342ad39b51a2
+
+	column product_code
+		dataType: string
+		lineageTag: f80e1ec5-8aa5-462c-8b9e-1b739fe4d72b
+		summarizeBy: none
+		sourceColumn: product_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_desc
+		dataType: string
+		lineageTag: 3cbe04fc-a5ae-49c6-b4e8-ed3e27fe1d94
+		summarizeBy: none
+		sourceColumn: product_desc
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Product Label' =
+			
+			dim_products[product_desc]
+			    & " ["
+			    & dim_products[product_code]
+			    & "]"
+		lineageTag: 9c97e953-3609-4918-9879-6d6e16f82944
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_products = m
+		mode: import
+		source =
+				let
+				    Origine = Csv.Document(File.Contents(DataFolder & "dim_products.csv"),[Delimiter=",", Columns=2, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    #"Modifica tipo" = Table.TransformColumnTypes(Origine,{{"Column1", type text}, {"Column2", type text}}),
+				    #"Intestazioni alzate di livello" = Table.PromoteHeaders(#"Modifica tipo", [PromoteAllScalars=true]),
+				    #"Modificato tipo" = Table.TransformColumnTypes(#"Intestazioni alzate di livello",{{"product_code", type text}, {"product_desc", type text}})
+				in
+				    #"Modificato tipo"
+
+	annotation PBI_NavigationStepName = Navigazione
+
+	annotation PBI_ResultType = Table
+

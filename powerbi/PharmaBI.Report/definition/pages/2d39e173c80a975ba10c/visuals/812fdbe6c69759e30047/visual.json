@@ -1,0 +1,353 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "812fdbe6c69759e30047",
+  "position": {
+    "x": 624,
+    "y": 0,
+    "z": 0,
+    "height": 767.99999999999989,
+    "width": 1296,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "clusteredBarChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_atc_level2"
+                    }
+                  },
+                  "Property": "ATC Label"
+                }
+              },
+              "queryRef": "dim_atc_level2.ATC Label",
+              "nativeQueryRef": "ATC Label",
+              "active": true
+            }
+          ]
+        },
+        "Tooltips": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_sales_retail"
+                    }
+                  },
+                  "Property": "Recorded Profit"
+                }
+              },
+              "queryRef": "fact_sales_retail.Recorded Profit",
+              "nativeQueryRef": "Recorded Profit"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_sales_retail"
+                    }
+                  },
+                  "Property": "Net Revenue"
+                }
+              },
+              "queryRef": "fact_sales_retail.Net Revenue",
+              "nativeQueryRef": "Net Revenue"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_sales_retail"
+                    }
+                  },
+                  "Property": "Packages Sold"
+                }
+              },
+              "queryRef": "fact_sales_retail.Packages Sold",
+              "nativeQueryRef": "Packages Sold"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_sales_retail"
+                    }
+                  },
+                  "Property": "Receipts"
+                }
+              },
+              "queryRef": "fact_sales_retail.Receipts",
+              "nativeQueryRef": "Receipts"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_sales_retail"
+                    }
+                  },
+                  "Property": "Overall Margin"
+                }
+              },
+              "queryRef": "fact_sales_retail.Overall Margin",
+              "nativeQueryRef": "Overall Margin"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_sales_retail"
+                    }
+                  },
+                  "Property": "Distinct Products Sold"
+                }
+              },
+              "queryRef": "fact_sales_retail.Distinct Products Sold",
+              "nativeQueryRef": "Distinct Products Sold"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_sales_retail"
+                    }
+                  },
+                  "Property": "Selected Ranking Metric"
+                }
+              },
+              "queryRef": "fact_sales_retail.Selected Ranking Metric",
+              "nativeQueryRef": "Selected Ranking Metric"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "fact_sales_retail"
+                  }
+                },
+                "Property": "Selected Ranking Metric"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "objects": {
+      "labels": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "labelDisplayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "1D"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "12D"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Top 10 human ATC level 2 categories by selected metric'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "18D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "15D"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "155b031a32d34e15bed3",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_atc_level2"
+              }
+            },
+            "Property": "ATC Label"
+          }
+        },
+        "type": "TopN",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "subquery",
+              "Expression": {
+                "Subquery": {
+                  "Query": {
+                    "Version": 2,
+                    "From": [
+                      {
+                        "Name": "d",
+                        "Entity": "dim_atc_level2",
+                        "Type": 0
+                      },
+                      {
+                        "Name": "f",
+                        "Entity": "fact_sales_retail",
+                        "Type": 0
+                      }
+                    ],
+                    "Select": [
+                      {
+                        "Column": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Source": "d"
+                            }
+                          },
+                          "Property": "ATC Label"
+                        },
+                        "Name": "field"
+                      }
+                    ],
+                    "OrderBy": [
+                      {
+                        "Direction": 2,
+                        "Expression": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Source": "f"
+                              }
+                            },
+                            "Property": "Selected Ranking Metric"
+                          }
+                        }
+                      }
+                    ],
+                    "Top": 10
+                  }
+                }
+              },
+              "Type": 2
+            },
+            {
+              "Name": "d",
+              "Entity": "dim_atc_level2",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "d"
+                          }
+                        },
+                        "Property": "ATC Label"
+                      }
+                    }
+                  ],
+                  "Table": {
+                    "SourceRef": {
+                      "Source": "subquery"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "d14e0da340b0e042003b",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_sales_retail"
+              }
+            },
+            "Property": "Selected Ranking Metric"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "251e65b889321cff5584",
+  "position": {
+    "x": 336,
+    "y": 936,
+    "z": 4,
+    "height": 144,
+    "width": 1584,
+    "tabOrder": 4
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Synthetic demonstration data — fictional transactions. ",
+                    "textStyle": {
+                      "fontSize": "24pt"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Demo sales window: 2026-01-05 to 2026-09-20. January and September have partial calendar coverage. Revenue excludes VAT. Recorded profit excludes operating expenses.",
+                    "textStyle": {
+                      "fontSize": "24pt"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

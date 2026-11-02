@@ -1,0 +1,24 @@
+model Model
+	culture: it-IT
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: it-IT
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["fact_sales_retail","dim_date","dim_products","dim_gm","dim_atc_level2","DataFolder"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table fact_sales_retail
+ref table dim_date
+ref table dim_products
+ref table 'Ranking Metric'
+ref table dim_gm
+ref table dim_atc_level2
+
+ref cultureInfo it-IT
+

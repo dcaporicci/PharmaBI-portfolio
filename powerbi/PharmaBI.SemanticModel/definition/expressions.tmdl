@@ -1,0 +1,8 @@
+/// Folder containing the CSV files exported for Power BI.
+expression DataFolder = "C:\Users\Utente\Desktop\PharmaBI\data\demo\powerbi\" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 02c2fe3c-19b2-4d81-b8a7-1b9177e33325
+
+	annotation PBI_NavigationStepName = Navigazione
+
+	annotation PBI_ResultType = Text
+

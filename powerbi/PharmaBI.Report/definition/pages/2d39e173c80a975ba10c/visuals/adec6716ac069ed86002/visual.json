@@ -1,0 +1,46 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "adec6716ac069ed86002",
+  "position": {
+    "x": 624,
+    "y": 800,
+    "z": 3,
+    "height": 112,
+    "width": 1296,
+    "tabOrder": 3
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Retail sales with human ATC codes only.",
+                    "textStyle": {
+                      "fontSize": "28pt"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Revenue excludes VAT. Recorded profit excludes operating expenses.",
+                    "textStyle": {
+                      "fontSize": "28pt"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

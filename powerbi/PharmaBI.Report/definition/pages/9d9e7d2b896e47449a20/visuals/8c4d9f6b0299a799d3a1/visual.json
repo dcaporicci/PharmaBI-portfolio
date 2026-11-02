@@ -1,0 +1,36 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "8c4d9f6b0299a799d3a1",
+  "position": {
+    "x": 1328,
+    "y": 1032,
+    "z": 3,
+    "height": 48.000000000000007,
+    "width": 592,
+    "tabOrder": 3
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Synthetic demonstration data — fictional transactions.",
+                    "textStyle": {
+                      "fontSize": "18pt"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}
