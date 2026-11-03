@@ -90,20 +90,41 @@ The Power BI exporter checks product coverage and ATC reference structure before
 
 The four exports contain 7.817 retail rows, 365 calendar rows, 240 product labels and 94 ATC level 2 reference rows in the tested snapshot. All four output files were confirmed present.
 
+## Automated demo reconciliation on Linux — 2026-11-03
+
+`R/demo/04_verify_demo.R` completed successfully with **70 checks passed** on Linux.
+It reused the shared structural validator, compared the stored fact and dimensions
+with their R sources, and reconciled SQL monthly values and seven inclusive date
+intervals with independent R calculations. Those intervals include partial months,
+a single day, the fictional closure and a period outside coverage.
+
+The verifier independently enumerated unordered product pairs within receipts in R.
+Pair counts, both confidence directions, support, expected co-occurrences and lift
+matched SQL for every checked interval. The full-period synthetic result contained
+4071 distinct pairs, 4995 pair occurrences, 3573 pairs seen once, and a maximum of
+133 containing receipts for one pair. These are fictional demonstration results.
+
+All four CSV exports matched SQLite, and the checked input file fingerprints were
+unchanged by verification. Results and verification-session metadata are saved
+locally under `data/demo/validation/`; see [Demo verification](demo_verification.md).
+Numerical reconciliation uses absolute tolerance `1e-7`, while the shared fact
+validator retains its own financial tolerance.
+
 ## Isolation and interface verification
 
 On 2026-10-30, the private SQLite file's MD5 fingerprint was compared before and after building the demo. It was unchanged. This confirms file-content isolation for that execution; it is not a complete security or privacy guarantee.
 
 The local Windows session used R 4.6.1 for the recorded fact validation. Demo Shiny displayed the expected overview totals and handled the selected empty interval. On 2026-11-02 the four Power BI pages were checked with the synthetic CSVs, including month/metric switching and recovery from a month without observations.
 
+On 2026-11-03 Shiny was also checked in the separate Linux portfolio checkout, including the initial KPIs, all five tabs, the empty interval and recovery.
+
 Power BI overview values matched the synthetic baseline. Public screenshots identify the data as synthetic. Product/category screenshot leaders are visual reference values, not substitutes for independent group-level reconciliation.
 
 ## Remaining release checks
 
-- Verify the complete new demo sequence on Linux and in a clean setup.
-- Record the R/RNG configuration, relevant package versions and public reference snapshot for reproducibility.
-- Independently reconcile synthetic basket/pair outputs before publishing detailed pair metrics.
-- Review the rest of the repository, generated outputs, previous screenshots and Git history for operational information.
+- Execute the new automated verifier on Windows and test a clean installation.
+- Retain the reference snapshot and generation-environment details for reproducibility; the verifier records input fingerprints and its own session versions, rather than pinning dependencies.
+- Complete the final public repository and asset review before the release tag. The public portfolio starts with a separate reviewed snapshot; the original history remains private.
 - Complete demo integration of the legacy R analysis/report path before using it for public report generation.
 
 Passing the checks above establishes specific structural and numerical properties. It does not establish business profitability, clinical meaning, customer behaviour or complete confidentiality of all repository history.

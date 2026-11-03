@@ -129,11 +129,12 @@ Run the complete scripts in order:
 source(here::here("R", "demo", "01_generate_demo_data.R"))
 source(here::here("R", "demo", "02_build_demo_database.R"))
 source(here::here("R", "demo", "03_export_demo_powerbi.R"))
+source(here::here("R", "demo", "04_verify_demo.R"))
 ```
 
 The generator creates a synthetic fact table directly; it does not simulate the four raw management-system CSV exports. The demo therefore exercises the shared fact validator and downstream consumers, rather than the private import/cleaning pipeline.
 
-Generated RDS, SQLite and CSV files are under `data/demo/` and excluded from Git.
+Generated RDS, SQLite and CSV files are under `data/demo/` and excluded from Git. The [demo verifier](docs/demo_verification.md) checks the documented baseline, period queries, receipt baskets, product pairs and CSV exports. It records results, input fingerprints and verification-session versions in a separate run directory under `data/demo/validation/`.
 
 ### 4. Launch Shiny
 
@@ -197,7 +198,7 @@ Sales data alone do not establish stock turnover, unmet demand, replenishment ne
 
 On Windows 11, the synthetic fact table passed all 14 validator checks; SQLite sales-by-type and monthly results reconciled with R. A before/after fingerprint check confirmed that building the demo database left the private database unchanged.
 
-Demo Shiny and the four Power BI pages were checked locally on Windows 11. Earlier Shiny and private-pipeline work was also exercised on Linux Mint. **The complete new demo sequence still needs verification on Linux; macOS remains unverified.** A clean installation test on a new machine is also pending.
+Demo Shiny and the four Power BI pages were checked locally on Windows 11. On 2026-11-03, demo generation, SQLite construction, CSV export and Shiny were also verified in a separate portfolio checkout on Linux Mint. The new automated verifier passed all **70 checks on Linux**, including independent R/SQL pair reconciliation. Execution of that new verifier on Windows remains pending. **macOS and a clean installation on a new machine remain unverified.**
 
 Git transfers source and documentation, not generated datasets, installed packages, caches or credentials. Regenerate local demo files after switching computers. Power BI Desktop is the Windows implementation.
 

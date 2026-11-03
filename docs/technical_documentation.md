@@ -26,6 +26,7 @@ The demo begins with a generated fact table. The original import, cleaning and c
 | `R/demo/01_generate_demo_data.R` | Generate the synthetic fact and reference snapshot |
 | `R/demo/02_build_demo_database.R` | Validate the demo fact and build its SQLite database |
 | `R/demo/03_export_demo_powerbi.R` | Export the four synthetic Power BI CSVs |
+| `R/demo/04_verify_demo.R` | Reconcile demo RDS, SQL outputs and exported CSVs; record local verification reports |
 | `dashboard/app.R` | Run Shiny against the selected SQLite path |
 
 Shared interfaces:
@@ -233,10 +234,12 @@ The current report still sources private R analyses. It has not been converted o
 
 Use the same reference snapshot, scenario settings, R/RNG configuration and relevant package versions for exact reproduction. Generated datasets, databases, caches and credentials are excluded from Git.
 
-Windows demo validation and smoke checks are recorded in [Data quality report](data_quality_report.md). Earlier Linux work does not establish that the new demo path has been tested end to end there. macOS and a clean setup remain unverified.
+Windows demo validation and smoke checks are recorded in [Data quality report](data_quality_report.md). On 2026-11-03 the separate Linux portfolio checkout completed reference preparation, demo generation, validation/build, CSV export and manual Shiny checks. The new [automated verifier](demo_verification.md) passed all 70 checks on Linux, including independent receipt-pair enumeration in R and comparison with SQL. It opens SQLite read-only and writes per-run reports under the ignored `data/demo/validation/` directory. Its Windows execution, macOS and a clean setup remain unverified.
 
 Updating current files does not remove operational values from earlier commits or cached copies. Repository/history and remaining public-asset review remain separate release tasks.
 
 ## Document revision
 
 2026-11-02 — Consolidated the public technical description around the synthetic demo, retained analytical definitions and implementation decisions, corrected stale model/roadmap statements and removed operational numerical evidence.
+
+2026-11-03 — Added the standalone demo verifier and recorded successful Linux data and Shiny checks.
