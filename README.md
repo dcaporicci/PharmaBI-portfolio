@@ -198,7 +198,7 @@ Sales data alone do not establish stock turnover, unmet demand, replenishment ne
 
 On Windows 11, the synthetic fact table passed all 14 validator checks; SQLite sales-by-type and monthly results reconciled with R. A before/after fingerprint check confirmed that building the demo database left the private database unchanged.
 
-Demo Shiny and the four Power BI pages were checked locally on Windows 11. On 2026-11-03, demo generation, SQLite construction, CSV export and Shiny were also verified in a separate portfolio checkout on Linux Mint. The new automated verifier passed all **70 checks on Linux**, including independent R/SQL pair reconciliation. Execution of that new verifier on Windows remains pending. **macOS and a clean installation on a new machine remain unverified.**
+Demo Shiny and the four Power BI pages were checked locally on Windows 11. On 2026-11-03, demo generation, SQLite construction, CSV export and Shiny were also verified in a separate portfolio checkout on Linux Mint. The new automated verifier passed all **70 checks on both Linux and Windows**, including independent R/SQL pair reconciliation. **macOS and a clean installation on a new machine remain unverified.**
 
 Git transfers source and documentation, not generated datasets, installed packages, caches or credentials. Regenerate local demo files after switching computers. Power BI Desktop is the Windows implementation.
 

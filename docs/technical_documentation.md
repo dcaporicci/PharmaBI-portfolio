@@ -234,7 +234,7 @@ The current report still sources private R analyses. It has not been converted o
 
 Use the same reference snapshot, scenario settings, R/RNG configuration and relevant package versions for exact reproduction. Generated datasets, databases, caches and credentials are excluded from Git.
 
-Windows demo validation and smoke checks are recorded in [Data quality report](data_quality_report.md). On 2026-11-03 the separate Linux portfolio checkout completed reference preparation, demo generation, validation/build, CSV export and manual Shiny checks. The new [automated verifier](demo_verification.md) passed all 70 checks on Linux, including independent receipt-pair enumeration in R and comparison with SQL. It opens SQLite read-only and writes per-run reports under the ignored `data/demo/validation/` directory. Its Windows execution, macOS and a clean setup remain unverified.
+Windows demo validation and smoke checks are recorded in [Data quality report](data_quality_report.md). On 2026-11-03 the separate Linux portfolio checkout completed reference preparation, demo generation, validation/build, CSV export and manual Shiny checks. The new [automated verifier](demo_verification.md) passed all 70 checks on both Linux and Windows, including independent receipt-pair enumeration in R and comparison with SQL. It opens SQLite read-only and writes per-run reports under the ignored `data/demo/validation/` directory. macOS and a clean setup remain unverified.
 
 Updating current files does not remove operational values from earlier commits or cached copies. Repository/history and remaining public-asset review remain separate release tasks.
 
@@ -242,4 +242,4 @@ Updating current files does not remove operational values from earlier commits o
 
 2026-11-02 — Consolidated the public technical description around the synthetic demo, retained analytical definitions and implementation decisions, corrected stale model/roadmap statements and removed operational numerical evidence.
 
-2026-11-03 — Added the standalone demo verifier and recorded successful Linux data and Shiny checks.
+2026-11-03 — Added the standalone demo verifier, recorded successful Linux data and Shiny checks, and confirmed all 70 automated checks on both Linux and Windows.

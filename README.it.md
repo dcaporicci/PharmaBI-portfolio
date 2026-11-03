@@ -198,7 +198,7 @@ I soli dati di vendita non dimostrano rotazione delle scorte, domanda non soddis
 
 Su Windows 11 la fact sintetica ha superato tutte le 14 verifiche; i risultati SQLite per tipo di vendita e mese sono stati riconciliati con R. Il confronto dell'impronta del database privato prima e dopo la costruzione demo ne ha confermato l'invarianza.
 
-Shiny demo e le quattro pagine Power BI sono stati controllati localmente su Windows 11. Il 2026-11-03 anche generazione demo, costruzione SQLite, export CSV e Shiny sono stati verificati in una copia separata del portfolio su Linux Mint. Il nuovo verificatore automatico ha superato tutti i **70 controlli su Linux**, compresa la riconciliazione indipendente delle coppie tra R e SQL. L'esecuzione di questo nuovo verificatore su Windows rimane da completare. **macOS e un'installazione da zero su un nuovo computer rimangono non verificati.**
+Shiny demo e le quattro pagine Power BI sono stati controllati localmente su Windows 11. Il 2026-11-03 anche generazione demo, costruzione SQLite, export CSV e Shiny sono stati verificati in una copia separata del portfolio su Linux Mint. Il nuovo verificatore automatico ha superato tutti i **70 controlli sia su Linux sia su Windows**, compresa la riconciliazione indipendente delle coppie tra R e SQL. **macOS e un'installazione da zero su un nuovo computer rimangono non verificati.**
 
 Git trasferisce sorgenti e documenti, non dataset generati, pacchetti installati, cache o credenziali. Dopo un cambio di PC rigenerare i file demo locali. Power BI Desktop è l'implementazione per Windows.
 

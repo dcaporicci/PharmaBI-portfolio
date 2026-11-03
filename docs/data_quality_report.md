@@ -90,9 +90,9 @@ The Power BI exporter checks product coverage and ATC reference structure before
 
 The four exports contain 7.817 retail rows, 365 calendar rows, 240 product labels and 94 ATC level 2 reference rows in the tested snapshot. All four output files were confirmed present.
 
-## Automated demo reconciliation on Linux — 2026-11-03
+## Automated demo reconciliation on Linux and Windows — 2026-11-03
 
-`R/demo/04_verify_demo.R` completed successfully with **70 checks passed** on Linux.
+`R/demo/04_verify_demo.R` completed successfully with **70 checks passed** on both Linux and Windows.
 It reused the shared structural validator, compared the stored fact and dimensions
 with their R sources, and reconciled SQL monthly values and seven inclusive date
 intervals with independent R calculations. Those intervals include partial months,
@@ -100,7 +100,7 @@ a single day, the fictional closure and a period outside coverage.
 
 The verifier independently enumerated unordered product pairs within receipts in R.
 Pair counts, both confidence directions, support, expected co-occurrences and lift
-matched SQL for every checked interval. The full-period synthetic result contained
+matched SQL for every checked interval. The recorded Linux full-period synthetic result contained
 4071 distinct pairs, 4995 pair occurrences, 3573 pairs seen once, and a maximum of
 133 containing receipts for one pair. These are fictional demonstration results.
 
@@ -122,7 +122,7 @@ Power BI overview values matched the synthetic baseline. Public screenshots iden
 
 ## Remaining release checks
 
-- Execute the new automated verifier on Windows and test a clean installation.
+- Test a clean installation on a new machine; macOS remains unverified.
 - Retain the reference snapshot and generation-environment details for reproducibility; the verifier records input fingerprints and its own session versions, rather than pinning dependencies.
 - Complete the final public repository and asset review before the release tag. The public portfolio starts with a separate reviewed snapshot; the original history remains private.
 - Complete demo integration of the legacy R analysis/report path before using it for public report generation.

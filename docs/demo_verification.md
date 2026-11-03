@@ -91,9 +91,10 @@ count of receipts: one receipt with multiple products contributes several pairs.
 The scenario deliberately injects recurring fictional product pairs.
 
 Shiny was also checked in the separate Linux portfolio checkout: the initial KPIs,
-all five tabs, the empty interval and recovery worked as expected. Execution of
-this new verifier on Windows remains pending. Earlier Windows checks covered demo
-generation, database construction, CSV export and manual dashboard use.
+all five tabs, the empty interval and recovery worked as expected. On 2026-11-03
+the corrected verifier was also executed on Windows, with all **70 checks passed**.
+Earlier Windows checks covered demo generation, database construction, CSV export
+and manual dashboard use.
 
 ## Local reports
 
