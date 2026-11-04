@@ -115,6 +115,32 @@ In the full-period Power BI screenshots, with **Recorded profit** selected:
 
 ![Synthetic merchandise group profit ranking](images/powerbi-merchandise-groups-demo.png)
 
+### Worked example: volume, profit and margin
+
+The full-period synthetic retail data produce three different ranking leaders:
+
+| Ranking leader | Product code | Net packages | Recorded profit (EUR) | Overall margin |
+|---|---|---:|---:|---:|
+| Package volume | D00000061 | 220 | 422,180 | 21,22% |
+| Total recorded profit | D00000042 | 180 | 2.555,283 | 50,47% |
+| Eligible overall margin | D00000024 | 20 | 42,900 | 54,75% |
+
+D00000042 combines higher average net revenue per package with a higher
+margin than D00000061. Its recorded profit per package is EUR 14,196,
+compared with EUR 1,919. D00000024 has the highest eligible margin,
+but its lower revenue and volume produce a smaller total contribution.
+
+The margin ranking includes products with at least 10 net packages,
+positive revenue and nonzero total recorded costs. The volume and
+profit rankings include all retail products.
+
+Reproduce this example with `R/demo/06_product_performance_case.R`.
+The comparison CSV is generated under `data/demo/case_studies/`.
+
+These fictional results illustrate different analytical questions.
+Recorded profit excludes operating expenses, and package volume alone
+does not establish inventory turnover or justify assortment decisions.
+
 ## 4. Read the human ATC scope correctly
 
 **Question:** Which classified categories lead the synthetic human ATC view?
