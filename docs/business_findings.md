@@ -184,6 +184,37 @@ counts are not customer counts. Detailed pair-level interpretation must also
 consider support, confidence, lift and the scenario's injected associations.
 See [Demo verification](demo_verification.md) for the recorded scope and limits.
 
+### Worked example: frequency, confidence and lift
+
+The complete synthetic period contains 4.800 retail receipts.
+
+| Pair (A / B) | Receipts together | Support | Lift | Meets the 5-receipt threshold |
+|---|---:|---:|---:|---|
+| D00000041 / D00000042 | 133 | 2,7708% | 25,81 | Yes |
+| D00000101 / D00000102 | 129 | 2,6875% | 29,88 | Yes |
+| D00000061 / D00000062 | 119 | 2,4792% | 22,05 | Yes |
+| D00000045 / D00000103 | 1 | 0,0208% | 192,00 | No |
+
+The most frequent pair differs from the highest-lift pair among those
+meeting the threshold.
+
+For D00000041 / D00000042, confidence A to B is 80,12% (133 / 166),
+while confidence B to A is 89,26% (133 / 149). The directions use
+different containing-receipt denominators.
+
+The rare pair has confidence of 20% in both directions: one shared
+receipt out of five containing either product. Its lift is 192 because
+the individual products also have very low baseline frequencies.
+A large relative association can therefore coexist with few observations.
+
+The five-receipt threshold is an exploratory selection criterion,
+not a statistical significance guarantee. The three frequent pairs
+were deliberately injected into the synthetic scenario.
+
+Reproduce the comparison with `R/demo/07_basket_association_case.R`.
+The resulting CSV is saved under `data/demo/case_studies/` as
+`basket_association_comparison.csv`.
+
 ## Traceability
 
 - `R/demo/01_generate_demo_data.R` defines the scenario.
