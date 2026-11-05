@@ -1,3 +1,7 @@
 * text=auto
 
 powerbi/**/*.tmdl whitespace=-blank-at-eof,-blank-at-eol
+
+# Binary presentation files
+*.pdf binary
+*.pptx binary
