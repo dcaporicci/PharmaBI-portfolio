@@ -68,3 +68,6 @@ data/database/
 
 # Private receipt classification rules
 /config/sales_classification.R
+
+# LibreOffice lock files
+.~lock.*#

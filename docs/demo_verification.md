@@ -131,3 +131,25 @@ Downloading the same public reference and using the same seed still requires
 compatible reference content, generator code, R/RNG settings and package versions
 for exact reproduction. Recording fingerprints and versions supports diagnosis;
 it does not by itself pin or redistribute an ATC snapshot.
+
+## Fact validator behavior tests
+
+After generating the synthetic demo, run:
+
+```r
+source(
+  here::here(
+    "R", "validation", "test_validate_fact_sales.R"
+  )
+)
+```
+
+The script checks acceptance of the valid demo and rejection of three
+controlled invalid copies: a duplicate key, inconsistent profit and
+inconsistent margin. Rejections must contain the expected error text.
+
+All four scenarios passed on Linux on 2026-11-06, including execution
+after restarting R. Windows execution remains to be verified.
+
+These tests complement the 70 demo verification checks and do not
+provide exhaustive coverage of the validator.
