@@ -155,3 +155,17 @@ after restarting R.
 
 These tests complement the 70 demo verification checks and do not
 provide exhaustive coverage of the validator.
+
+## Fresh-clone smoke test on Windows 11
+
+On 2026-11-07, the demo was rebuilt from a fresh clone using the
+existing R installation and packages. The README steps produced
+the synthetic data, SQLite database and Power BI CSV exports.
+
+Shiny showed 4,800 retail receipts and 133 receipts for the most
+frequent product pair. Power BI matched the expected receipt count,
+net revenue and overall margin after setting `DataFolder` to the
+clone's demo export directory.
+
+An initial cyclic-reference error did not recur after reopening
+Power BI and reapplying the parameter. Its cause was not established.
