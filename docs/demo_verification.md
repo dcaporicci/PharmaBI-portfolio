@@ -149,7 +149,9 @@ controlled invalid copies: a duplicate key, inconsistent profit and
 inconsistent margin. Rejections must contain the expected error text.
 
 All four scenarios passed on Linux on 2026-11-06, including execution
-after restarting R. Windows execution remains to be verified.
+after restarting R.
+
+**Windows 11 — 2026-11-07:** All four fact-validator tests passed after restarting R and successfully loading the `utf8` package. The initial run failed in the valid demo case because Windows blocked `utf8.dll`. The block did not recur during the rerun.
 
 These tests complement the 70 demo verification checks and do not
 provide exhaustive coverage of the validator.
