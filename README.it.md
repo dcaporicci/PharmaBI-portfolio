@@ -11,6 +11,10 @@ output: html_document
 
 [Read in English](README.md)
 
+**[Apri la demo interattiva in Shiny (dati sintetici)](<https://01a1c1a8-7b8a-ef13-5420-bf7796c076e7.share.connect.posit.cloud/>)**
+
+Filtra per periodo ed esplora vendite, margini e prodotti acquistati insieme. Non serve installare nulla.
+
 PharmaBI è un progetto personale di **Danilo Caporicci** che integra R, SQL, SQLite, Shiny e Power BI per trasformare il dettaglio degli scontrini in indicatori analitici documentati.
 
 **La dimostrazione pubblica utilizza transazioni sintetiche, prodotti e produttori fittizi. Tutti i risultati numerici e gli screenshot qui presentati riguardano la demo.** Le classificazioni utilizzano metadati ATC pubblici. La demo non descrive risultati o clienti di un'attività reale.
